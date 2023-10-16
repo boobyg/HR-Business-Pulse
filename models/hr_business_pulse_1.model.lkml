@@ -1,101 +1,156 @@
-# Define the database connection to be used for this model.
 connection: "ecomm"
+label: " Business Pulse"
+include: "/views/**/*.view" # include all the views
 
-# include all the views
-include: "/views/**/*.view.lkml"
+############ Model Configuration #############
 
-# Datagroups define a caching policy for an Explore. To learn more,
-# use the Quick Help panel on the right to see documentation.
-
-datagroup: hr_business_pulse_1_default_datagroup {
-  # sql_trigger: SELECT MAX(id) FROM etl_log;;
-  max_cache_age: "1 hour"
+datagroup: ecommerce_etl {
+  # sql_trigger: SELECT max(created_at) FROM ecomm.events ;;
+  # max_cache_age: "24 hours"
+  max_cache_age: "999999 hours"  #do not change will rebuild PDTs and generate errors
+  sql_trigger: FALSE ;; #do not change will rebuild PDTs and generate errors
 }
 
-persist_with: hr_business_pulse_1_default_datagroup
 
-# Explores allow you to join together different views (database tables) based on the
-# relationships between fields. By joining a view into an Explore, you make those
-# fields available to users for data analysis.
-# Explores should be purpose-built for specific use cases.
-
-# To see the Explore you’re building, navigate to the Explore menu and select an Explore under "Hr Business Pulse 1"
-
-# To create more sophisticated Explores that involve multiple views, you can use the join parameter.
-# Typically, join parameters require that you define the join type, join relationship, and a sql_on clause.
-# Each joined view also needs to define a primary key.
-
-explore: distribution_centers {}
-
-explore: inventory_items {
-  join: products {
-    type: left_outer 
-    sql_on: ${inventory_items.product_id} = ${products.id} ;;
-    relationship: many_to_one
-  }
-
-  join: distribution_centers {
-    type: left_outer 
-    sql_on: ${products.distribution_center_id} = ${distribution_centers.id} ;;
-    relationship: many_to_one
-  }
-}
-
-explore: events {
-  join: users {
-    type: left_outer 
-    sql_on: ${events.user_id} = ${users.id} ;;
-    relationship: many_to_one
-  }
-}
-
-explore: orders {
-  join: users {
-    type: left_outer 
-    sql_on: ${orders.user_id} = ${users.id} ;;
-    relationship: many_to_one
-  }
-}
-
-explore: products {
-  join: distribution_centers {
-    type: left_outer 
-    sql_on: ${products.distribution_center_id} = ${distribution_centers.id} ;;
-    relationship: many_to_one
-  }
-}
+persist_with: ecommerce_etl
+############ Base Explores #############
 
 explore: order_items {
-  join: users {
-    type: left_outer 
-    sql_on: ${order_items.user_id} = ${users.id} ;;
+  label: "(1) Orders, Items and Users"
+  access_filter: {
+    field: distribution_centers.id
+    user_attribute: distribution_center
+  }
+  view_name: order_items
+
+
+  join: order_facts {
+    type: left_outer
+    view_label: "Orders"
     relationship: many_to_one
+    sql_on: ${order_facts.order_id} = ${order_items.order_id} ;;
   }
 
   join: inventory_items {
-    type: left_outer 
-    sql_on: ${order_items.inventory_item_id} = ${inventory_items.id} ;;
+    #Left Join only brings in items that have been sold as order_item
+    type: full_outer
+    relationship: one_to_one
+    sql_on: ${inventory_items.id} = ${order_items.inventory_item_id} ;;
+  }
+
+  join: users {
+    type: left_outer
     relationship: many_to_one
+    sql_on: ${order_items.user_id} = ${users.id} ;;
+  }
+
+  join: user_order_facts {
+    view_label: "Users"
+    type: left_outer
+    relationship: many_to_one
+    sql_on: ${user_order_facts.user_id} = ${order_items.user_id} ;;
   }
 
   join: products {
-    type: left_outer 
-    sql_on: ${order_items.product_id} = ${products.id} ;;
+    type: left_outer
     relationship: many_to_one
+    sql_on: ${products.id} = ${inventory_items.product_id} ;;
   }
 
-  join: orders {
-    type: left_outer 
-    sql_on: ${order_items.order_id} = ${orders.order_id} ;;
+  join: repeat_purchase_facts {
     relationship: many_to_one
+    type: full_outer
+    sql_on: ${order_items.order_id} = ${repeat_purchase_facts.order_id} ;;
   }
 
   join: distribution_centers {
-    type: left_outer 
-    sql_on: ${products.distribution_center_id} = ${distribution_centers.id} ;;
+    type: left_outer
+    sql_on: ${distribution_centers.id} = ${inventory_items.product_distribution_center_id} ;;
     relationship: many_to_one
   }
 }
 
-explore: users {}
 
+#########  Event Data Explores #########
+
+explore: events {
+  label: "(2) Web Event Data"
+
+  join: sessions {
+    type: left_outer
+    sql_on: ${events.session_id} =  ${sessions.session_id} ;;
+    relationship: many_to_one
+  }
+
+
+  join: users {
+    type: left_outer
+    sql_on: ${sessions.session_user_id} = ${users.id} ;;
+    relationship: many_to_one
+  }
+
+  join: user_order_facts {
+    type: left_outer
+    sql_on: ${users.id} = ${user_order_facts.user_id} ;;
+    relationship: one_to_one
+    view_label: "Users"
+  }
+}
+
+explore: sessions {
+  label: "(3) Web Session Data"
+
+  join: events {
+    type: left_outer
+    sql_on: ${sessions.session_id} = ${events.session_id} ;;
+    relationship: one_to_many
+  }
+
+  join: users {
+    type: left_outer
+    relationship: many_to_one
+    sql_on: ${users.id} = ${sessions.session_user_id} ;;
+  }
+
+  join: user_order_facts {
+    type: left_outer
+    relationship: many_to_one
+    sql_on: ${user_order_facts.user_id} = ${users.id} ;;
+    view_label: "Users"
+  }
+}
+
+
+
+explore: journey_mapping {
+  label: "(6) Customer Journey Mapping"
+  extends: [order_items]
+  view_name: order_items
+
+  join: repeat_purchase_facts {
+    relationship: many_to_one
+    sql_on: ${repeat_purchase_facts.next_order_id} = ${order_items.order_id} ;;
+    type: left_outer
+  }
+
+  join: next_order_items {
+    type: left_outer
+    from: order_items
+    sql_on: ${repeat_purchase_facts.next_order_id} = ${next_order_items.order_id} ;;
+    relationship: many_to_many
+  }
+
+  join: next_order_inventory_items {
+    type: left_outer
+    from: inventory_items
+    relationship: many_to_one
+    sql_on: ${next_order_items.inventory_item_id} = ${next_order_inventory_items.id} ;;
+  }
+
+  join: next_order_products {
+    from: products
+    type: left_outer
+    relationship: many_to_one
+    sql_on: ${next_order_inventory_items.product_id} = ${next_order_products.id} ;;
+  }
+}
