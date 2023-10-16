@@ -1,5 +1,5 @@
 connection: "ecomm"
-label: " Business Pulse"
+label: "HR Business Pulse"
 include: "/views/**/*.view" # include all the views
 
 ############ Model Configuration #############
