@@ -492,6 +492,20 @@ measure: Benefits {
     sql: 48;;
     }
 
+  measure: taux_de_cadre_en_2022{
+    type: average_distinct
+    value_format_name: percent_0
+    sql: 95;;
+
+  }
+
+  measure: taux_de_cadre_en_2021{
+    type: average_distinct
+    value_format_name: percent_0
+    sql: 96;;
+
+  }
+
 ##################### end test parrameteres #########################
 
   set: detail {
