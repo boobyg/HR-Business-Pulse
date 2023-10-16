@@ -41,7 +41,15 @@ view: users {
   dimension: country {
     type: string
     map_layer_name: countries
-    sql: ${TABLE}.country ;;
+    sql: CASE
+    WHEN  ${TABLE}.country is null
+       THEN 'France'
+      else
+      ${TABLE}.country
+      END
+    ;;
+
+
   }
   # Dates and timestamps can be represented in Looker using a dimension group of type: time.
   # Looker converts dates and timestamps to the specified timeframes within the dimension group.
@@ -109,13 +117,13 @@ view: users {
   # ----- Sets of fields for drilling ------
   set: detail {
     fields: [
-	id,
-	last_name,
-	first_name,
-	events.count,
-	orders.count,
-	order_items.count
-	]
+  id,
+  last_name,
+  first_name,
+  events.count,
+  orders.count,
+  hr_data.count
+  ]
   }
 
 }

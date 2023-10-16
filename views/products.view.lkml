@@ -153,10 +153,10 @@ view: products {
   }
 
   set: detail {
-    fields: [id, item_name, brand, category, department, retail_price, customers.count, orders.count, order_items.count, inventory_items.count]
+    fields: [id, item_name, brand, category, department, retail_price, customers.count, orders.count, hr_data.count, inventory_items.count]
   }
 
   set: detail2 {
-    fields: [category_count, brand_count, department_count, count, customers.count, orders.count, order_items.count, inventory_items.count, products.count]
+    fields: [category_count, brand_count, department_count, count, customers.count, orders.count, hr_data.count, inventory_items.count, products.count]
   }
 }

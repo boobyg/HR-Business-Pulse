@@ -1,14 +1,14 @@
 include: "/models/**/*.model.lkml"
   view: order_facts {
     derived_table: {
-      explore_source: order_items {
-        column: order_id {field: order_items.order_id_no_actions }
-        column: items_in_order { field: order_items.count }
-        column: order_amount { field: order_items.total_sale_price }
+      explore_source: hr_data1 {
+        column: order_id {field: hr_data1.order_id_no_actions }
+        column: items_in_order { field: hr_data1.count }
+        column: order_amount { field: hr_data1.total_sale_price }
         column: order_cost { field: inventory_items.total_cost }
-        column: user_id {field: order_items.user_id }
-        column: created_at {field: order_items.created_raw}
-        column: order_gross_margin {field: order_items.total_gross_margin}
+        column: user_id {field: hr_data1.user_id }
+        column: created_at {field: hr_data1.created_raw}
+        column: order_gross_margin {field: hr_data1.total_gross_margin}
         derived_column: order_sequence_number {
           sql: RANK() OVER (PARTITION BY user_id ORDER BY created_at) ;;
         }

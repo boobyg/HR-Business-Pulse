@@ -2,15 +2,15 @@ view: repeat_purchase_facts {
   derived_table: {
     datagroup_trigger: ecommerce_etl
     sql: SELECT
-      order_items.order_id as order_id
-      , order_items.created_at
-      , COUNT(DISTINCT repeat_order_items.id) AS number_subsequent_orders
-      , MIN(repeat_order_items.created_at) AS next_order_date
-      , MIN(repeat_order_items.order_id) AS next_order_id
-    FROM looker-private-demo.ecomm.order_items as order_items
-    LEFT JOIN looker-private-demo.ecomm.order_items repeat_order_items
-      ON order_items.user_id = repeat_order_items.user_id
-      AND order_items.created_at < repeat_order_items.created_at
+      hr_data.order_id as order_id
+      , hr_data.created_at
+      , COUNT(DISTINCT repeat_hr_data.id) AS number_subsequent_orders
+      , MIN(repeat_hr_data.created_at) AS next_order_date
+      , MIN(repeat_hr_data.order_id) AS next_order_id
+    FROM looker-private-demo.ecomm.hr_data as hr_data
+    LEFT JOIN looker-private-demo.ecomm.hr_data repeat_hr_data
+      ON hr_data.user_id = repeat_hr_data.user_id
+      AND hr_data.created_at < repeat_hr_data.created_at
     GROUP BY 1, 2
      ;;
   }

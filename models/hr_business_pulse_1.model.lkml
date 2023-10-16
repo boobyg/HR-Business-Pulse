@@ -11,44 +11,47 @@ datagroup: ecommerce_etl {
   sql_trigger: FALSE ;; #do not change will rebuild PDTs and generate errors
 }
 
-
 persist_with: ecommerce_etl
 ############ Base Explores #############
 
-explore: order_items {
-  label: "(1) Orders, Items and Users"
+# explore: hr_data {
+#   label: "(0) HR Data"
+#   view_name: hr_data
+
+# }
+
+explore: hr_data1 {
+  from: hr_data
+  label: "(1) HR Data"
   access_filter: {
     field: distribution_centers.id
     user_attribute: distribution_center
-  }
-  view_name: order_items
-
-
+    }
   join: order_facts {
     type: left_outer
     view_label: "Orders"
     relationship: many_to_one
-    sql_on: ${order_facts.order_id} = ${order_items.order_id} ;;
+    sql_on: ${order_facts.order_id} = ${hr_data1.order_id} ;;
   }
 
   join: inventory_items {
     #Left Join only brings in items that have been sold as order_item
     type: full_outer
     relationship: one_to_one
-    sql_on: ${inventory_items.id} = ${order_items.inventory_item_id} ;;
+    sql_on: ${inventory_items.id} = ${hr_data1.inventory_item_id} ;;
   }
 
   join: users {
     type: left_outer
     relationship: many_to_one
-    sql_on: ${order_items.user_id} = ${users.id} ;;
+    sql_on: ${hr_data1.user_id} = ${users.id} ;;
   }
 
   join: user_order_facts {
     view_label: "Users"
     type: left_outer
     relationship: many_to_one
-    sql_on: ${user_order_facts.user_id} = ${order_items.user_id} ;;
+    sql_on: ${user_order_facts.user_id} = ${hr_data1.user_id} ;;
   }
 
   join: products {
@@ -60,7 +63,7 @@ explore: order_items {
   join: repeat_purchase_facts {
     relationship: many_to_one
     type: full_outer
-    sql_on: ${order_items.order_id} = ${repeat_purchase_facts.order_id} ;;
+    sql_on: ${hr_data1.order_id} = ${repeat_purchase_facts.order_id} ;;
   }
 
   join: distribution_centers {
@@ -117,40 +120,5 @@ explore: sessions {
     relationship: many_to_one
     sql_on: ${user_order_facts.user_id} = ${users.id} ;;
     view_label: "Users"
-  }
-}
-
-
-
-explore: journey_mapping {
-  label: "(6) Customer Journey Mapping"
-  extends: [order_items]
-  view_name: order_items
-
-  join: repeat_purchase_facts {
-    relationship: many_to_one
-    sql_on: ${repeat_purchase_facts.next_order_id} = ${order_items.order_id} ;;
-    type: left_outer
-  }
-
-  join: next_order_items {
-    type: left_outer
-    from: order_items
-    sql_on: ${repeat_purchase_facts.next_order_id} = ${next_order_items.order_id} ;;
-    relationship: many_to_many
-  }
-
-  join: next_order_inventory_items {
-    type: left_outer
-    from: inventory_items
-    relationship: many_to_one
-    sql_on: ${next_order_items.inventory_item_id} = ${next_order_inventory_items.id} ;;
-  }
-
-  join: next_order_products {
-    from: products
-    type: left_outer
-    relationship: many_to_one
-    sql_on: ${next_order_inventory_items.product_id} = ${next_order_products.id} ;;
   }
 }
