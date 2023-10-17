@@ -72,7 +72,10 @@ explore: hr_data1 {
     relationship: many_to_one
   }
 }
-explore: bouyuques__hr{}
+explore: bouyuques__hr{
+  label: "(3)ratio_des_effectifs_par_filiere"
+
+}
 
 
 #########  Event Data Explores #########
