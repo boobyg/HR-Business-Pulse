@@ -11,7 +11,7 @@ view: bouyuques__hr {
     # A dimension is a groupable field that can be used to filter query results.
     # This dimension will be called "String Field 0" in Explore.
 
-  dimension: ratio_des_effectifs_par_filière {
+  dimension: ratio_des_effectifs_par_filiere {
     type: string
     sql: ${TABLE}.string_field_0 ;;
   }

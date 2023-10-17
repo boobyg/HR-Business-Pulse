@@ -72,6 +72,7 @@ explore: hr_data1 {
     relationship: many_to_one
   }
 }
+explore: bouyuques__hr{}
 
 
 #########  Event Data Explores #########
