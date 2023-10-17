@@ -164,7 +164,7 @@ view: hr_data {
   dimension_group: created {
     label: "Hired Date"
     type: time
-    timeframes: [time, hour, date, week, month, year, hour_of_day, day_of_week, month_num, raw, week_of_year,month_name]
+    timeframes: [ year, hour, date, week, month,raw, week_of_year,month_name]
     sql: ${TABLE}.created_at ;;
 
   }
@@ -504,6 +504,18 @@ measure: Benefits {
     value_format_name: percent_0
     sql: 96;;
 
+  }
+
+  dimension: age {
+    type: number
+    sql: ${users.age} ;;
+  }
+
+  dimension: employee_age_tier {
+    type: tier
+    tiers: [0, 25, 35, 45, 55, 65]
+    sql: ${age} ;;
+    style: integer
   }
 
 ##################### end test parrameteres #########################
