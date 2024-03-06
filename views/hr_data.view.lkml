@@ -484,13 +484,17 @@ measure: Benefits {
   }
   measure: age_moyenne_2022  {
     type: average_distinct
-    sql: 45;;
+    value_format_name: decimal_1
+    sql: ${age};;
+    filters: [users.created_year: "2022"]
     }
 
   measure: age_moyenne_2021  {
-    type: average_distinct
-    sql: 48;;
-    }
+  type: average_distinct
+    value_format_name: decimal_1
+    sql: ${age};;
+    filters: [users.created_year: "2021"]
+  }
 
   measure: taux_de_cadre_en_2022{
     type: average_distinct
