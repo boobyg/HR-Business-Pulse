@@ -2,7 +2,7 @@
 view: bouyuques__hr {
   # The sql_table_name parameter indicates the underlying database table
   # to be used for all fields in this view.
-  sql_table_name: `looker-demo-347209.ecomm.Bouyuques  HR` ;;
+  sql_table_name: `looker-demo-347209.ecomm.test` ;;
 
   # No primary key is defined for this view. In order to join this view in an Explore,
   # define primary_key: yes on a dimension that has no repeated values.

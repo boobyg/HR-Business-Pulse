@@ -16,18 +16,19 @@ include: "/models/**/*.model.lkml"
       datagroup_trigger: ecommerce_etl
     }
 
-    dimension: order_item_id {
+#    dimension: order_item_id {
+      dimension: order_id {
       type: number
       hidden: no
       primary_key: yes
       sql: ${TABLE}.order_id ;;
     }
 
-    dimension_group: delivered
-  {
-    timeframes: [raw, time, date, week,month, year]
-      sql:  ${TABLE}.delivered   ;;
-    }
+#    dimension_group: delivered
+#  {
+#    timeframes: [raw, time, date, week,month, year]
+#      sql:  ${TABLE}.delivered   ;;
+#    }
 
     dimension: items_in_order {
       type: number
